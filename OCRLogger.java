@@ -25,7 +25,7 @@ public class OCRLogger
 		this.jobs = settings.getJobs();
 		if(jobs == null) {
 			JOptionPane.showMessageDialog(view, "Couldn't open/create settings file. Local dir permissions?", "OCR Logger", JOptionPane.ERROR_MESSAGE);
-			return;
+			System.exit(0);
 		}
 		for(Job job : jobs) {
 			this.view.addJobView(job.getView(), job.getTitle());
@@ -42,6 +42,10 @@ public class OCRLogger
 	
 	public void viewResized() {
 		view.present();
+	}
+	
+	public void jobRenamed(Job job) {
+		this.view.setJobViewTitle(job.getView(), job.getTitle());
 	}
 	
 	public void saveSettings(Job job) {

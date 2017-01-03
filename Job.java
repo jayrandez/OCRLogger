@@ -5,9 +5,11 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 public class Job
@@ -50,6 +52,9 @@ public class Job
 		view.imageDescription.setText(desc.url);
 		if(desc.urlValid)
 			fillImage(desc.url);
+		
+		if(desc.filenameValid)
+			view.fileDescription.setText(desc.filename);
 		
 		fillScheduleDetails();
 	}
@@ -113,6 +118,30 @@ public class Job
 		}
 	}
 	
+	private void actionSetFile() {
+		JFileChooser chooser = new JFileChooser();
+		
+		if(chooser.showSaveDialog(view) == JFileChooser.APPROVE_OPTION){ 
+			try {
+				File outFile = chooser.getSelectedFile();
+				if(!outFile.createNewFile())
+					throw new IOException();
+				desc.filename = outFile.getAbsolutePath();
+				desc.filenameValid = true;
+				desc.title = outFile.getName();
+				app.jobRenamed(this);
+				view.fileDescription.setText(desc.filename);
+				saveSettings();
+			}
+			catch (IOException e) {
+				JOptionPane.showMessageDialog(view,
+					"Please name a writeable file which does not yet exist.",
+					"OCR Logger",
+					JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	
 	private void actionAddZone() {
 		desc.zones.add(null);
 		desc.zoneNames.add("Untitled");
@@ -160,16 +189,10 @@ public class Job
 		if(ignoreActions)
 			return;
 		
-		try {
-			int day = Integer.parseInt(view.dayField.getText());
-			if(day < 0 || day > 99)
-				throw new Exception();
+		int day = confirmFieldLimits(view.dayField.getText(), 0, 99, "days");
+		if(day >= 0) {
 			desc.scheduleDay = day;
 			saveSettings();
-		}
-		catch(Exception ex) {
-			JOptionPane.showMessageDialog(view, "For days please enter an integer from 0-99.", "OCR Logger", JOptionPane.ERROR_MESSAGE);
-			fillScheduleDetails();
 		}
 	}
 	
@@ -177,16 +200,10 @@ public class Job
 		if(ignoreActions)
 			return;
 		
-		try {
-			int hour = Integer.parseInt(view.hourField.getText());
-			if(hour < 0 || hour > 23)
-				throw new Exception();
+		int hour = confirmFieldLimits(view.hourField.getText(), 0, 23, "hours");
+		if(hour >= 0) {
 			desc.scheduleHour = hour;
 			saveSettings();
-		}
-		catch(Exception ex) {
-			JOptionPane.showMessageDialog(view, "For hours please enter an integer from 0-23.", "OCR Logger", JOptionPane.ERROR_MESSAGE);
-			fillScheduleDetails();
 		}
 	}
 	
@@ -194,16 +211,27 @@ public class Job
 		if(ignoreActions)
 			return;
 		
-		try {
-			int minute = Integer.parseInt(view.minuteField.getText());
-			if(minute < 0 || minute > 59)
-				throw new Exception();
+		int minute = confirmFieldLimits(view.minuteField.getText(), 0, 59, "minutes");
+		if(minute >= 0) {
 			desc.scheduleMinute = minute;
 			saveSettings();
 		}
+	}
+	
+	private int confirmFieldLimits(String text, int min, int max, String fieldName) {
+		try {
+			int value = Integer.parseInt(text);
+			if(value < min || value > max)
+				throw new Exception();
+			return value;
+		}
 		catch(Exception ex) {
-			JOptionPane.showMessageDialog(view, "For minutes please enter an integer from 0-59.", "OCR Logger", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(view,
+				"For " + fieldName + " please enter an integer from " + min + "-" + max + ".",
+				"OCR Logger",
+				JOptionPane.ERROR_MESSAGE);
 			fillScheduleDetails();
+			return -1;
 		}
 	}
 
@@ -214,6 +242,9 @@ public class Job
 	private void setActionListeners() {
 		view.setImageButton.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent ev) { actionSetImage(); }});
+		
+		view.setFileButton.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent ev) { actionSetFile(); }});
 		
 		view.addZoneButton.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent ev) { actionAddZone(); }});

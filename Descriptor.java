@@ -18,6 +18,9 @@ public class Descriptor implements Serializable
 	public String url;
 	public boolean urlValid;
 	
+	public String filename;
+	public boolean filenameValid;
+	
 	public ArrayList<Rectangle> zones;
 	public ArrayList<String> zoneNames;
 	public ArrayList<Integer> zoneTypes;
@@ -35,6 +38,9 @@ public class Descriptor implements Serializable
 		
 		desc.url = "Image URL";
 		desc.urlValid = false;
+		
+		desc.filename = "Output File";
+		desc.filenameValid = false;
 		
 		desc.zones = new ArrayList<Rectangle>();
 		desc.zones.add(null);
@@ -55,6 +61,7 @@ public class Descriptor implements Serializable
 		String str = "--- JOB : " + title + " ---\n";
 		str += "Image URL: " + url + "\n";
 		str += "URL Valid? " + urlValid + "\n";
+		str += "Filename: " + filename + "\n";
 		str += "OCR Zone List: \n";
 		for(int i = 0; i < zones.size(); i++)
 			str += zoneNames.get(i) + " " + zoneTypes.get(i) + " " + zones.get(i) + "\n";
