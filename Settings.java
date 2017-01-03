@@ -5,15 +5,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Properties;
 
 public class Settings
 {
+	private OCRLogger app;
 	private boolean sane;
 	private boolean newFile;
-	private Properties table;
-	private OCRLogger app;
+	
+	private ArrayList<Descriptor> descriptors;
 	
 	public Settings(OCRLogger ol) {
 		this.app = ol;
@@ -22,8 +24,9 @@ public class Settings
 			loadSettings();
 			this.sane = true;
 		}
-		catch(IOException ex) {
+		catch(IOException | ClassNotFoundException ex) {
 			this.sane = false;
+			ex.printStackTrace();
 		}
 	}
 	
@@ -35,42 +38,56 @@ public class Settings
 		if(!sane)
 			return false;
 		
-		// Update table with new descriptor and save settings...
-		
-		return true;
+		try {
+			int index = descriptors.indexOf(job.getDescriptor());
+			if(index == -1)
+				descriptors.add(job.getDescriptor());
+			else
+				descriptors.set(index, job.getDescriptor());
+			saveSettings(descriptors);
+			return true;
+		}
+		catch(IOException ex) {
+			ex.printStackTrace();
+			return false;
+		}
 	}
 	
 	public ArrayList<Job> getJobs() {
 		if(!sane)
 			return null;
-		
-		// Load all descriptors from settings table...
-		
+
 		ArrayList<Job> jobs = new ArrayList<Job>();
-		jobs.add(new Job(app));
+		for(Descriptor desc : descriptors)
+			jobs.add(new Job(app, desc));
+		
 		return jobs;
 	}
 
-	private void loadSettings() throws IOException {
+	private void loadSettings() throws IOException, ClassNotFoundException {
 		if(!(new File("settings.txt").exists())) {
 			this.newFile = true;
 			saveDefaultSettings();
 		}
-		
-		this.table = new Properties();
-		FileInputStream in = new FileInputStream("settings.txt");
-		table.load(in);
-		in.close();
+
+		FileInputStream fin = new FileInputStream("settings.txt");
+		ObjectInputStream ois = new ObjectInputStream(fin);
+		this.descriptors = (ArrayList<Descriptor>)ois.readObject();
+		ois.close();
+		fin.close();
 	}
 	
-	private void saveSettings(Properties settings) throws IOException {
-		FileOutputStream out = new FileOutputStream("settings.txt");
-		settings.store(out, "---No Comment---");
-		out.close();
+	private void saveSettings(ArrayList<Descriptor> descriptors) throws IOException {
+		FileOutputStream fout = new FileOutputStream("settings.txt");
+		ObjectOutputStream oos = new ObjectOutputStream(fout);
+		oos.writeObject(descriptors);
+		oos.close();
+		fout.close();
 	}
 		
 	private void saveDefaultSettings() throws IOException {
-		Properties defaults = new Properties();
-		saveSettings(defaults);
+		ArrayList<Descriptor> def = new ArrayList<Descriptor>(); 
+		def.add(Descriptor.Default());
+		saveSettings(def);
 	}
 }

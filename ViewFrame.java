@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.border.EmptyBorder;
 
 public class ViewFrame extends JFrame
 {
@@ -45,6 +46,7 @@ public class ViewFrame extends JFrame
 		// Create Toolbar
 		
 		JPanel toolbar = new JPanel(new BorderLayout());
+		toolbar.setBorder(new EmptyBorder(5, 5, 5, 5));
 		
 		JPanel messagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		this.messageLabel = new JLabel("Message text.");

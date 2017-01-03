@@ -17,11 +17,13 @@ import javax.swing.JPanel;
 
 public class ImagePanel extends JPanel implements MouseListener, MouseMotionListener
 {
+	private Job job;
 	private BufferedImage image;
 	private Point dragFrom;
 	private Point dragTo;
 	
-	public ImagePanel() {
+	public ImagePanel(Job j) {
+		this.job = j;
 		this.setBackground(Color.RED);
 		this.setPreferredSize(new Dimension(200, 200));
 		this.addMouseListener(this);
@@ -36,8 +38,14 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	}
 	
 	public void setBoundingRect(Rectangle rect) {
-		this.dragFrom = rect.getLocation();
-		this.dragTo = new Point(dragFrom.x + rect.width, dragFrom.y + rect.height);
+		if(rect == null) {
+			this.dragFrom = null;
+			this.dragTo = null;
+		}
+		else {
+			this.dragFrom = rect.getLocation();
+			this.dragTo = new Point(dragFrom.x + rect.width, dragFrom.y + rect.height);
+		}
 		repaint();
 	}
 	
@@ -54,11 +62,16 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 		int width = this.getWidth();
 		int height = this.getHeight();
 		
-		if(image == null)
-			g.setColor(Color.RED);
-		else
-			g.setColor(Color.WHITE);
+		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, width, height);
+		
+		
+		g.setColor(Color.BLACK);
+		g.drawRect(0, 0, width-1, height-1);
+		if(image == null) {
+			g.drawLine(0, 0, width-1, height-1);
+			g.drawLine(width-1, 0, 0, height-1);
+		}
 		
 		g.drawImage(image, 10, 10, null);
 		
@@ -98,7 +111,7 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	}
 	
 	public void mouseReleased(MouseEvent ev) {
-		// Update settings
+		job.boundsUpdated(getBoundingRect());
 		repaint();
 	}
 	
