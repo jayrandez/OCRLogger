@@ -30,14 +30,13 @@ public class JobView extends JPanel
 	protected JTextField fileDescription;
 	protected JComboBox<String> zoneSelect;
 	protected JButton addZoneButton;
-	protected JTextField fieldNameBox;
+	protected JTextFieldMod fieldNameBox;
 	protected JComboBox<String> fieldTypeSelect;
 	
-	protected ButtonGroup radioGroup;
-	protected ArrayList<JRadioButton> radioButtons;
-	protected JTextField dayField;
-	protected JTextField hourField;
-	protected JTextField minuteField;
+	protected ButtonGroupMod radioGroup;
+	protected JTextFieldMod dayField;
+	protected JTextFieldMod hourField;
+	protected JTextFieldMod minuteField;
 	
 	protected JLabel jobNotc;
 	protected JButton startButton;
@@ -135,7 +134,7 @@ public class JobView extends JPanel
 		panel.add(zoneLine);
 		
 		JPanel nameLine = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		this.fieldNameBox = new JTextField("Untitled");
+		this.fieldNameBox = new JTextFieldMod("Untitled");
 		fieldNameBox.setPreferredSize(new Dimension(150, 27));
 		nameLine.add(Box.createHorizontalStrut(20));
 		nameLine.add(new JLabel(" - Field Name: "));
@@ -158,28 +157,27 @@ public class JobView extends JPanel
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		
-		ButtonGroup radioGroup = new ButtonGroup();
+		this.radioGroup = new ButtonGroupMod();
 		ArrayList<JRadioButton> radioButtons = new ArrayList<JRadioButton>();
 		for(int i = 0; i < 4; i++) {
 			JRadioButton button = new JRadioButton(null, null, i == 0);
-			radioButtons.add(button);
 			radioGroup.add(button);
 		}
 		
 		JPanel line0 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		line0.add(radioButtons.get(0));
+		line0.add(radioGroup.get(0));
 		line0.add(new JLabel("Once"));
 		stackLine(line0);
 		panel.add(line0);
 		
 		JPanel line1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		this.dayField = new JTextField("0");
+		this.dayField = new JTextFieldMod("0");
 		dayField.setPreferredSize(new Dimension(20, 27));
-		this.hourField = new JTextField("0");
+		this.hourField = new JTextFieldMod("0");
 		hourField.setPreferredSize(new Dimension(20, 27));
-		this.minuteField = new JTextField("30");
+		this.minuteField = new JTextFieldMod("30");
 		minuteField.setPreferredSize(new Dimension(20, 27));
-		line1.add(radioButtons.get(1));
+		line1.add(radioGroup.get(1));
 		line1.add(new JLabel("Every"));
 		line1.add(dayField);
 		line1.add(new JLabel("days,"));
@@ -191,13 +189,13 @@ public class JobView extends JPanel
 		panel.add(line1);
 		
 		JPanel line2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		line2.add(radioButtons.get(2));
+		line2.add(radioGroup.get(2));
 		line2.add(new JLabel("Beginning of every hour."));
 		stackLine(line2);
 		panel.add(line2);
 		
 		JPanel line3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		line3.add(radioButtons.get(3));
+		line3.add(radioGroup.get(3));
 		line3.add(new JLabel("Beginning of every minute."));
 		stackLine(line3);
 		panel.add(line3);

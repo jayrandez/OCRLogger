@@ -8,12 +8,24 @@ public class Descriptor implements Serializable
 	final static int StringField = 1;
 	final static int ImageField = 2;
 	
+	final static int scheduleOnce = 0;
+	final static int scheduleRepeat = 1;
+	final static int scheduleByHour = 2;
+	final static int scheduleByMinute = 3;
+	
 	public String title;
+	
 	public String url;
 	public boolean urlValid;
+	
 	public ArrayList<Rectangle> zones;
 	public ArrayList<String> zoneNames;
 	public ArrayList<Integer> zoneTypes;
+	
+	public int scheduleType;
+	public int scheduleDay;
+	public int scheduleHour;
+	public int scheduleMinute;
 	
 	public static Descriptor Default()
 	{
@@ -31,7 +43,10 @@ public class Descriptor implements Serializable
 		desc.zoneTypes = new ArrayList<Integer>();
 		desc.zoneTypes.add(new Integer(0));
 		
-		
+		desc.scheduleType = scheduleOnce;
+		desc.scheduleDay = 0;
+		desc.scheduleHour = 0;
+		desc.scheduleMinute = 30;
 		
 		return desc;
 	}
@@ -43,7 +58,7 @@ public class Descriptor implements Serializable
 		str += "OCR Zone List: \n";
 		for(int i = 0; i < zones.size(); i++)
 			str += zoneNames.get(i) + " " + zoneTypes.get(i) + " " + zones.get(i) + "\n";
-		
+		str += "Schedule: " + scheduleType + " - " + scheduleDay + "days, " + scheduleHour + "hrs, " + scheduleMinute + "min.\n";
 		return str;
 	}
 }
