@@ -6,10 +6,10 @@ The data is written to a local CSV file and optionally hosted with Firebase.
 
 The public API can trigger creation of a time series plot created with JFreeChart.
 
-* Local Client Screenshots *
+### Local Client Screenshots
 
 Blah blah blah...
 
-* Public API Reference *
+### Public API Reference
 
 Examples here...
