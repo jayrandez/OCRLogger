@@ -9,11 +9,11 @@ public class Scheduler
 {
 	private Job job;
 	private Descriptor desc;
-	private Tesseract tess;
+	private TesseractManager tess;
 	private Timer timer;
 	private TimerTask task;
 	
-	public Scheduler(Job j, Tesseract t) {
+	public Scheduler(Job j, TesseractManager t) {
 		this.job = j;
 		this.desc = job.getDescriptor();
 		this.tess = t;

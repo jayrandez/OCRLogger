@@ -7,13 +7,13 @@ import javax.swing.*;
 
 public class OCRLogger
 {
-	private Tesseract tess;
+	private TesseractManager tess;
 	private ViewFrame view;
 	private Settings settings;
 	private ArrayList<Job> jobs;
 	
 	public OCRLogger() {
-		this.tess = new Tesseract();
+		this.tess = new TesseractManager();
 		
 		this.view = new ViewFrame();
 		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
