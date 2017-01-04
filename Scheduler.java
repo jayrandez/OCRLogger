@@ -1,153 +1,161 @@
 // MIT License 2017
 // Jay Randez, https://github.com/jayrandez
 
+import java.awt.Image;
 import java.io.*;
 import java.util.*;
 
-import javax.swing.JOptionPane;
-
 public class Scheduler
 {
-	private ArrayList<Activity> activities;
+	private Job job;
+	private Descriptor desc;
+	private Tesseract tess;
+	private Timer timer;
+	private TimerTask task;
 	
-	public Scheduler() {
-		this.activities = new ArrayList<Activity>();
+	public Scheduler(Job j, Tesseract t) {
+		this.job = j;
+		this.desc = job.getDescriptor();
+		this.tess = t;
+		this.timer = new Timer();
+		
+		try {
+			File outFile = new File(desc.filename);
+			outFile.createNewFile(); // Ensure file exists
+			if(tail(new File(desc.filename)).equals(""))
+				writeFileHeader(job);
+		}
+		catch(IOException ex) {
+			ex.printStackTrace();
+			job.updateStatus("File Write Error. Ensure output file is writeable and restart.");
+			return;
+		}
+
+		this.task = new TimerTask() {
+		public void run() {
+			long executionTime = this.scheduledExecutionTime();
+			Date thisRun = new Date(executionTime);
+			System.out.println("OCR task is running now - " + thisRun);
+			log(thisRun);
+		}};
+		
+		scheduleNextRun();
 	}
 	
-	public void executeJob(Job job) {
-		
-		activities.add(new Activity(job));
-	}
-	
-	private class Activity
-	{
-		private Job job;
-		private Descriptor desc;
-		private Timer timer;
-		private TimerTask task;
-		
-		public Activity(Job j) {
-			this.job = j;
-			this.desc = job.getDescriptor();
-			this.timer = new Timer();
-			
-			try {
-				File outFile = new File(desc.filename);
-				outFile.createNewFile(); // Ensure file exists
-				if(tail(new File(desc.filename)).equals(""))
-					writeFileHeader(job);
-			}
-			catch(IOException ex) {
-				ex.printStackTrace();
-				job.updateStatus("File Write Error. Ensure output file is writeable and restart.");
+	private void scheduleNextRun() {
+		if(desc.scheduleType == Descriptor.scheduleOnce) {
+			if(getLastRun() != null)
 				return;
-			}
-
-			this.task = new TimerTask() {
-			public void run() {
-				long executionTime = this.scheduledExecutionTime();
-				Date thisRun = new Date(executionTime);
-				System.out.println("OCR task is running now - " + thisRun);
-				log(thisRun);
-			}};
 			
-			scheduleNextRun();
+			Date nextRun = new Date(); // Now
+			
+			System.out.println("Scheduling task for " + nextRun);
+			timer.schedule(task, nextRun);
 		}
-		
-		private void scheduleNextRun() {
-			if(desc.scheduleType == Descriptor.scheduleOnce) {
-				if(getLastRun() != null)
-					return;
-				
-				Date nextRun = new Date(); // Now
-				
-				System.out.println("Scheduling task for " + nextRun);
-				timer.schedule(task, nextRun);
-			}
-			else if(desc.scheduleType == Descriptor.scheduleRepeat) {
-				Date lastRun = getLastRun();
-				
-				long hours = (desc.scheduleDay * 24) + desc.scheduleHour;
-				long minutes = (hours * 60) + desc.scheduleMinute;
-				long seconds = minutes * 60;
-				long millis = seconds * 1000;
-				
-				Date nextRun;
-				if(lastRun == null)
-					nextRun = new Date(); // Now
-				else
-					nextRun = new Date(lastRun.getTime() + millis); // Last execution + period
+		else if(desc.scheduleType == Descriptor.scheduleRepeat) {
+			Date lastRun = getLastRun();
+			
+			long hours = (desc.scheduleDay * 24) + desc.scheduleHour;
+			long minutes = (hours * 60) + desc.scheduleMinute;
+			long seconds = minutes * 60;
+			long millis = seconds * 1000;
+			
+			Date nextRun;
+			if(lastRun == null)
+				nextRun = new Date(); // Now
+			else
+				nextRun = new Date(lastRun.getTime() + millis); // Last execution + period
 
-				System.out.println("Scheduling task with period " + millis + " for " + nextRun);
-				timer.schedule(task, nextRun, millis);
-			}
-			else if(desc.scheduleType == Descriptor.scheduleByHour) {
-				Calendar cal = Calendar.getInstance();
-				cal.set(Calendar.MILLISECOND, 0);
-				cal.set(Calendar.SECOND, 0);
-				cal.set(Calendar.MINUTE, 0);
-				cal.add(Calendar.HOUR_OF_DAY, 1);
-				Date nextRun = cal.getTime();
-				
-				long millis = 60 * 60 * 1000; // 60 Min/Hr * 60 Sec/Min * 1000 Millis/Sec
-				
-				System.out.println("Scheduling task with period " + millis + " for " + nextRun);
-				timer.schedule(task, nextRun, millis);
-			}
-			else if(desc.scheduleType == Descriptor.scheduleByMinute) {
-				Calendar cal = Calendar.getInstance();
-				cal.set(Calendar.MILLISECOND, 0);
-				cal.set(Calendar.SECOND, 0);
-				cal.add(Calendar.MINUTE, 1);
-				Date nextRun = cal.getTime();
-				
-				long millis = 60 * 1000; // 60 Sec/Min * 1000 Millis/Sec
-				
-				System.out.println("Scheduling task with period " + millis + " for " + nextRun);
-				timer.schedule(task, nextRun, millis);
-			}
+			System.out.println("Scheduling task with period " + millis + " for " + nextRun);
+			timer.schedule(task, nextRun, millis);
 		}
-		
-		private void log(Date thisRun) {
-			try {
-				PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(desc.filename, true)));
-				writer.write("" + thisRun + ",");
-				
-				writer.write("Meh\n");
-				
-				writer.close();
-			}
-			catch(IOException ex) {
-				ex.printStackTrace();
-				job.updateStatus("File Write Error. Ensure output file is writeable and restart.");
-			}
+		else if(desc.scheduleType == Descriptor.scheduleByHour) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.MILLISECOND, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.add(Calendar.HOUR_OF_DAY, 1);
+			Date nextRun = cal.getTime();
+			
+			long millis = 60 * 60 * 1000; // 60 Min/Hr * 60 Sec/Min * 1000 Millis/Sec
+			
+			System.out.println("Scheduling task with period " + millis + " for " + nextRun);
+			timer.schedule(task, nextRun, millis);
 		}
-		
-		public void writeFileHeader(Job job) throws IOException {
-			Descriptor desc = job.getDescriptor();
-
-			PrintWriter writer = new PrintWriter(new FileWriter(desc.filename));
-			writer.write("Date,");
-			int numFields = desc.zoneNames.size();
-			for(int i = 0; i < numFields; i++) {
-				writer.write(desc.zoneNames.get(i));
-				if(i < numFields - 1)
+		else if(desc.scheduleType == Descriptor.scheduleByMinute) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.MILLISECOND, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.add(Calendar.MINUTE, 1);
+			Date nextRun = cal.getTime();
+			
+			long millis = 60 * 1000; // 60 Sec/Min * 1000 Millis/Sec
+			
+			System.out.println("Scheduling task with period " + millis + " for " + nextRun);
+			timer.schedule(task, nextRun, millis);
+		}
+	}
+	
+	private void log(Date thisRun) {
+		try {
+			PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(desc.filename, true)));
+			writer.write("" + thisRun + ",");
+			
+			Object[] results = tess.runOCR(desc);
+			for(int i = 0; i < results.length; i++) {
+				Object result = results[i];
+				
+				if(result instanceof String) {
+					writer.write((String)result);
+				}
+				else if(result instanceof Number) {
+					writer.write("" + (Number)result);
+				}
+				else if(result instanceof Image) {
+					writer.write("Image");
+				}
+				else {
+					writer.write("Unknown");
+				}
+				
+				if(i < results.length - 1)
 					writer.write(",");
 			}
+			
 			writer.write("\n");
 			writer.close();
 		}
-		
-		private Date getLastRun() {
-			File log = new File(desc.filename);
-			String lastLine = tail(log);
-
-			if(lastLine.substring(0, 5).equals("Date,"))
-				return null;
-
-			String[] parts = lastLine.split(",");
-			return new Date(parts[0]);
+		catch(IOException ex) {
+			ex.printStackTrace();
+			job.updateStatus("File Write Error. Ensure output file is writeable and restart.");
 		}
+	}
+	
+	public void writeFileHeader(Job job) throws IOException {
+		Descriptor desc = job.getDescriptor();
+
+		PrintWriter writer = new PrintWriter(new FileWriter(desc.filename));
+		writer.write("Date,");
+		int numFields = desc.zoneNames.size();
+		for(int i = 0; i < numFields; i++) {
+			writer.write(desc.zoneNames.get(i));
+			if(i < numFields - 1)
+				writer.write(",");
+		}
+		writer.write("\n");
+		writer.close();
+	}
+	
+	@SuppressWarnings("deprecation")
+	private Date getLastRun() {
+		File log = new File(desc.filename);
+		String lastLine = tail(log);
+
+		if(lastLine.substring(0, 5).equals("Date,"))
+			return null;
+
+		String[] parts = lastLine.split(",");
+		return new Date(parts[0]);
 	}
 	
 	// CREDIT Eric Leschinski, http://stackoverflow.com/questions/686231/quickly-read-the-last-line-of-a-text-file

@@ -3,25 +3,23 @@
 
 import java.awt.event.*;
 import java.util.*;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 public class OCRLogger
 {
-	// This is the "View-controller" for the app, and ViewFrame is the "View"
+	private Tesseract tess;
 	private ViewFrame view;
 	private Settings settings;
 	private ArrayList<Job> jobs;
-	private Scheduler scheduler;
 	
 	public OCRLogger() {
+		this.tess = new Tesseract();
+		
 		this.view = new ViewFrame();
 		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setActionListeners();
 		
 		this.settings = new Settings(this);
-		this.scheduler = new Scheduler();
 		
 		this.jobs = settings.getJobs();
 		if(jobs == null) {
@@ -31,7 +29,7 @@ public class OCRLogger
 		for(Job job : jobs) {
 			this.view.addJobView(job.getView(), job.getTitle());
 			if(job.getDescriptor().jobStarted)
-				scheduler.executeJob(job);
+				new Scheduler(job, tess);
 			System.out.println(job.getDescriptor().summary() + "\n");
 		}
 		
@@ -52,7 +50,7 @@ public class OCRLogger
 	}
 	
 	public void jobStarted(Job job) {
-		scheduler.executeJob(job);
+		new Scheduler(job, tess);
 	}
 	
 	public void saveSettings(Job job) {
