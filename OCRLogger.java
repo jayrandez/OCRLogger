@@ -13,6 +13,7 @@ public class OCRLogger
 	private ViewFrame view;
 	private Settings settings;
 	private ArrayList<Job> jobs;
+	private Scheduler scheduler;
 	
 	public OCRLogger() {
 		this.view = new ViewFrame();
@@ -20,6 +21,7 @@ public class OCRLogger
 		setActionListeners();
 		
 		this.settings = new Settings(this);
+		this.scheduler = new Scheduler();
 		
 		this.jobs = settings.getJobs();
 		if(jobs == null) {
@@ -28,6 +30,8 @@ public class OCRLogger
 		}
 		for(Job job : jobs) {
 			this.view.addJobView(job.getView(), job.getTitle());
+			if(job.getDescriptor().jobStarted)
+				scheduler.executeJob(job);
 			System.out.println(job.getDescriptor().summary() + "\n");
 		}
 		
@@ -48,7 +52,7 @@ public class OCRLogger
 	}
 	
 	public void jobStarted(Job job) {
-		System.out.println("STARTING JOB OFFICIALLY");
+		scheduler.executeJob(job);
 	}
 	
 	public void saveSettings(Job job) {

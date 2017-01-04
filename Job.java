@@ -62,6 +62,8 @@ public class Job
 		try {
 			URL url = new URL(urlString);
 			BufferedImage image = ImageIO.read(url);
+			if(image == null)
+				throw new IOException();
 			view.imagePanel.setImage(image);
 			return true;
 		}

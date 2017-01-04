@@ -7,14 +7,14 @@ import java.util.*;
 
 public class Descriptor implements Serializable
 {
-	final static int NumberField = 0;
-	final static int StringField = 1;
-	final static int ImageField = 2;
+	final public static int NumberField = 0;
+	final public static int StringField = 1;
+	final public static int ImageField = 2;
 	
-	final static int scheduleOnce = 0;
-	final static int scheduleRepeat = 1;
-	final static int scheduleByHour = 2;
-	final static int scheduleByMinute = 3;
+	final public static int scheduleOnce = 0;
+	final public static int scheduleRepeat = 1;
+	final public static int scheduleByHour = 2;
+	final public static int scheduleByMinute = 3;
 	
 	public String title;
 	
