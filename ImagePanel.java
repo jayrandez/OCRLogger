@@ -1,17 +1,9 @@
 // MIT License 2017
 // Jay Randez, https://github.com/jayrandez
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
 
 import javax.swing.JPanel;
 
@@ -21,9 +13,11 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	private BufferedImage image;
 	private Point dragFrom;
 	private Point dragTo;
+	private boolean enabled;
 	
 	public ImagePanel(Job j) {
 		this.job = j;
+		this.enabled = true;
 		this.setBackground(Color.RED);
 		this.setPreferredSize(new Dimension(200, 200));
 		this.addMouseListener(this);
@@ -56,6 +50,10 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 			return new Rectangle(dragFrom.x, dragFrom.y, dragTo.x-dragFrom.x, dragTo.y-dragFrom.y);
 	}
 	
+	public void setEnabled(boolean e) {
+		this.enabled = e;
+	}
+	
 	public void paint(Graphics gg) {
 		Graphics2D g = (Graphics2D)gg;
 		
@@ -82,7 +80,7 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	}
 
 	public void mouseMoved(MouseEvent ev) {
-		if(image == null)
+		if(image == null || !enabled)
 			return;
 		
 		Rectangle bounds = new Rectangle(10, 10, image.getWidth(), image.getHeight());
@@ -94,7 +92,7 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 		}
 	}
 	public void mouseDragged(MouseEvent ev) {
-		if(image == null)
+		if(image == null || !enabled)
 			return;
 		
 		this.dragTo = limitPoint(ev.getPoint());
@@ -102,7 +100,7 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	}
 	
 	public void mousePressed(MouseEvent ev) {
-		if(image == null)
+		if(image == null || !enabled)
 			return;
 		
 		this.dragFrom = limitPoint(ev.getPoint());
@@ -111,6 +109,9 @@ public class ImagePanel extends JPanel implements MouseListener, MouseMotionList
 	}
 	
 	public void mouseReleased(MouseEvent ev) {
+		if(image == null || !enabled)
+			return;
+		
 		job.boundsUpdated(getBoundingRect());
 		repaint();
 	}

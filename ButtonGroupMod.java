@@ -1,9 +1,9 @@
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
+// MIT License 2017
+// Jay Randez, https://github.com/jayrandez
 
-import javax.swing.ButtonGroup;
-import javax.swing.JRadioButton;
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
 
 public class ButtonGroupMod extends ButtonGroup implements ItemListener
 {
@@ -45,6 +45,11 @@ public class ButtonGroupMod extends ButtonGroup implements ItemListener
 	
 	public JRadioButton get(int index) {
 		return buttons.get(index);
+	}
+	
+	public void setEnabled(boolean enabled) {
+		for(JRadioButton button : buttons)
+			button.setEnabled(enabled);
 	}
 
 	public void itemStateChanged(ItemEvent ev) {

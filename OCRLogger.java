@@ -1,9 +1,8 @@
 // MIT License 2017
 // Jay Randez, https://github.com/jayrandez
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -48,6 +47,10 @@ public class OCRLogger
 		this.view.setJobViewTitle(job.getView(), job.getTitle());
 	}
 	
+	public void jobStarted(Job job) {
+		System.out.println("STARTING JOB OFFICIALLY");
+	}
+	
 	public void saveSettings(Job job) {
 		if(!settings.storeJob(job)) {
 			JOptionPane.showMessageDialog(view, "Unable to write settings file, changes unsaved.", "OCR Logger", JOptionPane.ERROR_MESSAGE);
@@ -56,7 +59,7 @@ public class OCRLogger
 			System.out.println("Saved settings, Job index " + jobs.indexOf(job));
 		}
 	}
-	
+
 	private void actionAdd() {
 		Job job = new Job(this, Descriptor.Default());
 		this.jobs.add(job);

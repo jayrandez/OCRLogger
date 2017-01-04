@@ -1,13 +1,8 @@
 // MIT License 2017
 // Jay Randez, https://github.com/jayrandez
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 
 public class Settings
 {
@@ -64,6 +59,7 @@ public class Settings
 		return jobs;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void loadSettings() throws IOException, ClassNotFoundException {
 		if(!(new File("settings.txt").exists())) {
 			this.newFile = true;

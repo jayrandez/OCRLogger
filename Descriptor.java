@@ -1,6 +1,9 @@
-import java.awt.Rectangle;
-import java.io.Serializable;
-import java.util.ArrayList;
+// MIT License 2017
+// Jay Randez, https://github.com/jayrandez
+
+import java.awt.*;
+import java.io.*;
+import java.util.*;
 
 public class Descriptor implements Serializable
 {
@@ -30,6 +33,8 @@ public class Descriptor implements Serializable
 	public int scheduleHour;
 	public int scheduleMinute;
 	
+	public boolean jobStarted;
+	
 	public static Descriptor Default()
 	{
 		Descriptor desc = new Descriptor();
@@ -54,6 +59,8 @@ public class Descriptor implements Serializable
 		desc.scheduleHour = 0;
 		desc.scheduleMinute = 30;
 		
+		desc.jobStarted = false;
+		
 		return desc;
 	}
 	
@@ -62,10 +69,12 @@ public class Descriptor implements Serializable
 		str += "Image URL: " + url + "\n";
 		str += "URL Valid? " + urlValid + "\n";
 		str += "Filename: " + filename + "\n";
+		str += "Filename Valid? " + filenameValid + "\n";
 		str += "OCR Zone List: \n";
 		for(int i = 0; i < zones.size(); i++)
 			str += zoneNames.get(i) + " " + zoneTypes.get(i) + " " + zones.get(i) + "\n";
 		str += "Schedule: " + scheduleType + " - " + scheduleDay + "days, " + scheduleHour + "hrs, " + scheduleMinute + "min.\n";
+		str += "Job Started? " + jobStarted + "\n";
 		return str;
 	}
 }

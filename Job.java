@@ -1,16 +1,13 @@
 // MIT License 2017
 // Jay Randez, https://github.com/jayrandez
 
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import javax.imageio.ImageIO;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.io.*;
+import java.net.*;
+import javax.imageio.*;
+import javax.swing.*;
 
 public class Job
 {	
@@ -57,6 +54,8 @@ public class Job
 			view.fileDescription.setText(desc.filename);
 		
 		fillScheduleDetails();
+		
+		fillJobStatusDetails();
 	}
 	
 	private boolean fillImage(String urlString) {
@@ -93,9 +92,24 @@ public class Job
 		ignoreActions = false;
 	}
 	
-	private void actionZoneChanged() {
-		int zoneIndex = view.zoneSelect.getSelectedIndex();
-		fillZoneDetails(zoneIndex);
+	private void fillJobStatusDetails() {
+		if(desc.jobStarted) {
+			view.startButton.setVisible(false);
+			view.jobNotc.setVisible(true);
+			view.jobNotc.setText("Job Started");
+			
+			view.imageDescription.setEnabled(false);
+			view.setImageButton.setEnabled(false);
+			view.setFileButton.setEnabled(false);
+			view.radioGroup.setEnabled(false);
+			view.addZoneButton.setEnabled(false);
+			view.fieldTypeSelect.setEnabled(false);
+			view.fieldNameBox.setEnabled(false);
+			view.imagePanel.setEnabled(false);
+			view.dayField.setEnabled(false);
+			view.hourField.setEnabled(false);
+			view.minuteField.setEnabled(false);
+		}
 	}
 	
 	public void boundsUpdated(Rectangle bounds) {
@@ -105,10 +119,20 @@ public class Job
 		saveSettings();
 	}
 	
+	public void updateStatus(String message) {
+		view.jobNotc.setText("Job Started - " + message);
+	}
+
+	private void actionZoneChanged() {
+		int zoneIndex = view.zoneSelect.getSelectedIndex();
+		fillZoneDetails(zoneIndex);
+	}
+	
 	private void actionSetImage() {
 		String urlString = view.imageDescription.getText();
 		
 		if(fillImage(urlString)) {
+			desc.url = urlString;
 			desc.urlValid = true;
 			app.viewResized();
 			saveSettings();
@@ -155,7 +179,18 @@ public class Job
 	}
 	
 	private void actionStartJob() {
-		System.out.println("Starting job");
+		if(desc.urlValid && desc.filenameValid) {
+			app.jobStarted(this);
+			desc.jobStarted = true;
+			fillJobStatusDetails();
+			saveSettings();
+		}
+		else {
+			JOptionPane.showMessageDialog(view,
+				"Valid image and output file required to start job.",
+				"OCR Logger",
+				JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private void actionZoneNameChanged() {
@@ -211,7 +246,7 @@ public class Job
 		if(ignoreActions)
 			return;
 		
-		int minute = confirmFieldLimits(view.minuteField.getText(), 0, 59, "minutes");
+		int minute = confirmFieldLimits(view.minuteField.getText(), 1, 59, "minutes");
 		if(minute >= 0) {
 			desc.scheduleMinute = minute;
 			saveSettings();

@@ -1,15 +1,9 @@
 // MIT License 2017
 // Jay Randez, https://github.com/jayrandez
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.*;
 
 public class ViewFrame extends JFrame
 {

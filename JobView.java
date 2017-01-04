@@ -1,24 +1,9 @@
 // MIT License 2017
 // Jay Randez, https://github.com/jayrandez
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.util.ArrayList;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.*;
 
 public class JobView extends JPanel
 {
@@ -81,7 +66,7 @@ public class JobView extends JPanel
 		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		actionPanel.setBorder(new EmptyBorder(20, 0, 0, 0));
 		this.startButton = new JButton("Start Job");
-		this.jobNotc = new JLabel("Log file last written X at X.");
+		this.jobNotc = new JLabel("Job Started");
 		jobNotc.setVisible(false);
 		actionPanel.add(startButton);
 		actionPanel.add(jobNotc);
@@ -93,7 +78,6 @@ public class JobView extends JPanel
 		
 		JPanel topLine = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		this.imageDescription = new JTextField("Image URL");
-		//imageDescription.setEnabled(false);
 		imageDescription.setPreferredSize(new Dimension(200, 27));
 		this.setImageButton = new JButton("Choose");
 		topLine.add(imageDescription);
@@ -158,7 +142,6 @@ public class JobView extends JPanel
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		
 		this.radioGroup = new ButtonGroupMod();
-		ArrayList<JRadioButton> radioButtons = new ArrayList<JRadioButton>();
 		for(int i = 0; i < 4; i++) {
 			JRadioButton button = new JRadioButton(null, null, i == 0);
 			radioGroup.add(button);
