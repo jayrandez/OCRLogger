@@ -98,10 +98,16 @@ public class Scheduler
 	
 	private void log(Date thisRun) {
 		try {
+			job.updateStatus("Last run was " + thisRun);
+			Object[] results = tess.runOCR(desc);
+			if(results.length == 0) {
+				job.updateStatus("Fatal job error. No result recorded to log.");
+				return;
+			}
+			
 			PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(desc.filename, true)));
 			writer.write("" + thisRun + ",");
-			
-			Object[] results = tess.runOCR(desc);
+
 			for(int i = 0; i < results.length; i++) {
 				Object result = results[i];
 				
@@ -115,7 +121,11 @@ public class Scheduler
 					writer.write("Image");
 				}
 				else {
+					// OCR Output was invalid, if unexpected then complain
 					writer.write("Unknown");
+					if(desc.zones.get(i) != null) {
+						job.updateStatus("OCR Error. Log results invalid.");
+					}
 				}
 				
 				if(i < results.length - 1)
@@ -127,7 +137,7 @@ public class Scheduler
 		}
 		catch(IOException ex) {
 			ex.printStackTrace();
-			job.updateStatus("File Write Error. Ensure output file is writeable and restart.");
+			job.updateStatus("File Write Error. Ensure output file is writeable.");
 		}
 	}
 	
